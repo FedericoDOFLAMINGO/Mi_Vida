@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para ti, mi amor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold:       #C9A84C;
+    --gold-light: #E8D08A;
+    --gold-dark:  #8B6914;
+    --cream:      #FAF3E0;
+    --parchment:  #F2E8CC;
+    --ink:        #2B1A0E;
+    --rose:       #8C3A4A;
+    --rose-light: #C4687A;
+    --shadow:     rgba(43,26,14,0.25);
+  }
+
+  body {
+    background: #1A0F06;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+  }
+
+  /* ── PARTÍCULAS DE FONDO ── */
+  #particles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .petal {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50% 0 50% 0;
+    background: var(--gold-light);
+    opacity: 0;
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── PANTALLA DE BIENVENIDA ── */
+  #welcome-screen {
+    position: fixed; inset: 0; z-index: 100;
+    background: radial-gradient(ellipse at center, #2E1A08 0%, #0E0703 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 1.4s ease, visibility 1.4s ease;
+  }
+  #welcome-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .wax-seal-container {
+    position: relative;
+    margin-bottom: 40px;
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,100% { filter: drop-shadow(0 0 18px rgba(201,168,76,0.5)); }
+    50%      { filter: drop-shadow(0 0 35px rgba(201,168,76,0.9)); }
+  }
+  .wax-seal {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 38%, #C0392B, #7B241C 60%, #5D1A14);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 0 0 4px var(--gold-dark), 0 0 0 7px #5D1A14, inset 0 -4px 12px rgba(0,0,0,0.4);
+  }
+  .wax-seal::before {
+    content: '';
+    position: absolute; inset: 8px;
+    border-radius: 50%;
+    border: 2px dashed rgba(201,168,76,0.4);
+  }
+  .seal-monogram {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 12px rgba(201,168,76,0.7);
+    user-select: none;
+  }
+  .welcome-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    color: var(--gold-light);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(201,168,76,0.5);
+  }
+  .welcome-sub {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    color: rgba(232,208,138,0.65);
+    font-size: 1.1rem;
+    margin-bottom: 50px;
+  }
+  .open-btn {
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    padding: 14px 40px;
+    cursor: pointer;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s;
+  }
+  .open-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+    z-index: -1;
+  }
+  .open-btn:hover { color: var(--ink); }
+  .open-btn:hover::before { transform: scaleX(1); }
+  .click-hint {
+    margin-top: 22px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: rgba(232,208,138,0.35);
+    animation: blink 2.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
+
+  /* ── CARTA PRINCIPAL ── */
+  #carta-wrapper {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 820px;
+    padding: 60px 20px 100px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+  }
+  #carta-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .carta {
+    background: var(--parchment);
+    position: relative;
+    padding: 70px 65px;
+    box-shadow:
+      0 0 0 2px var(--gold-dark),
+      0 0 0 6px rgba(139,105,20,0.18),
+      0 0 0 8px var(--gold-dark),
+      0 25px 80px rgba(0,0,0,0.6);
+  }
+
+  /* ── BORDES ORNAMENTALES ── */
+  .border-corner {
+    position: absolute;
+    width: 90px; height: 90px;
+  }
+  .border-corner svg { width: 100%; height: 100%; }
+  .bc-tl { top: -2px; left: -2px; }
+  .bc-tr { top: -2px; right: -2px; transform: scaleX(-1); }
+  .bc-bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+  .bc-br { bottom: -2px; right: -2px; transform: scale(-1,-1); }
+
+  .border-h { /* horizontal ornament lines */
+    position: absolute; left: 85px; right: 85px;
+    height: 20px;
+  }
+  .border-h.top { top: 8px; }
+  .border-h.bottom { bottom: 8px; }
+  .border-v {
+    position: absolute; top: 85px; bottom: 85px;
+    width: 20px;
+  }
+  .border-v.left { left: 8px; }
+  .border-v.right { right: 8px; }
+
+  /* ── CABECERA ── */
+  .carta-header {
+    text-align: center;
+    margin-bottom: 42px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(139,105,20,0.3);
+    position: relative;
+  }
+  .carta-header::after {
+    content: '';
+    position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .header-ornament {
+    font-size: 1.5rem;
+    color: var(--gold);
+    letter-spacing: 0.5em;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+  .header-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.1rem);
+    color: var(--gold-dark);
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+  }
+  .header-subtitle {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--rose);
+  }
+
+  /* ── FOTO INCLINADA ── */
+  .photo-frame-wrap {
+    float: right;
+    margin: 0 0 28px 36px;
+    position: relative;
+  }
+  .photo-frame {
+    width: 190px;
+    transform: rotate(20deg); /* 110° visuales = ~20° CSS right tilt */
+    position: relative;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+  }
+  .photo-frame:hover {
+    transform: rotate(0deg) scale(1.06);
+    z-index: 10;
+  }
+  .photo-frame-inner {
+    background: white;
+    padding: 10px 10px 36px;
+    box-shadow: 4px 6px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(139,105,20,0.2);
+  }
+  .photo-frame img {
+    width: 100%; height: 170px;
+    object-fit: cover;
+    display: block;
+    filter: sepia(15%) saturate(90%);
+  }
+  .photo-placeholder {
+    width: 100%; height: 170px;
+    background: linear-gradient(135deg, #e8d9b8, #d4c49a);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--gold-dark);
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-align: center;
+    gap: 8px;
+  }
+  .photo-placeholder svg { opacity: 0.4; }
+  .photo-caption {
+    text-align: center;
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--gold-dark);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+  .photo-tape {
+    position: absolute;
+    width: 50px; height: 18px;
+    background: rgba(232,208,138,0.45);
+    border: 1px solid rgba(201,168,76,0.3);
+    top: -9px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+  }
+
+  /* ── TEXTO CARTA ── */
+  .carta-body {
+    font-size: 1.13rem;
+    line-height: 1.95;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .carta-body p {
+    margin-bottom: 1.4em;
+    text-align: justify;
+    text-indent: 2.2em;
+  }
+  .carta-body p:first-child::first-letter {
+    font-family: 'Cinzel', serif;
+    font-size: 4.2em;
+    float: left;
+    line-height: 0.72;
+    margin: 0.08em 0.08em 0 0;
+    color: var(--gold-dark);
+    text-shadow: 1px 1px 0 rgba(139,105,20,0.3);
+  }
+  .carta-body p.no-indent { text-indent: 0; }
+
+  .divider {
+    text-align: center;
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.6em;
+    margin: 28px 0;
+    opacity: 0.7;
+  }
+
+  .firma {
+    text-align: right;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(139,105,20,0.25);
+    position: relative;
+  }
+  .firma::before {
+    content: '';
+    position: absolute; top: -1px; right: 0;
+    width: 180px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+  .firma-name {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 1.9rem;
+    color: var(--gold-dark);
+    margin-bottom: 2px;
+  }
+  .firma-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem;
+    color: var(--rose);
+    letter-spacing: 0.1em;
+    font-style: italic;
+  }
+
+  /* ── SELLO DE CERA AL FINAL ── */
+  .seal-bottom {
+    margin: 40px auto 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 38%, #C0392B, #7B241C 60%, #5D1A14);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 3px var(--gold-dark), 0 0 0 5px #5D1A14, 0 8px 20px rgba(0,0,0,0.4);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .seal-bottom:hover { transform: scale(1.08) rotate(-5deg); }
+  .seal-bottom::before {
+    content: '';
+    position: absolute; inset: 5px;
+    border-radius: 50%;
+    border: 1px dashed rgba(201,168,76,0.35);
+  }
+  .seal-bottom-text {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 8px rgba(201,168,76,0.6);
+  }
+
+  /* ── PLAYER DE MÚSICA ── */
+  .music-player {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    z-index: 50;
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 10px;
+  }
+  .music-bubble {
+    background: linear-gradient(135deg, #2E1A08, #1A0F06);
+    border: 1px solid var(--gold-dark);
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .music-bubble:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 12px rgba(201,168,76,0.2);
+  }
+  .music-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, var(--gold-light), var(--gold-dark));
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .music-btn:hover { transform: scale(1.1); }
+  .music-info { text-align: left; }
+  .music-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .music-artist {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 0.82rem;
+    color: rgba(232,208,138,0.55);
+  }
+  .music-bars {
+    display: flex; align-items: flex-end; gap: 3px; height: 18px;
+  }
+  .bar {
+    width: 3px;
+    background: var(--gold);
+    border-radius: 2px;
+    animation: bar-dance 0.9s ease-in-out infinite;
+    opacity: 0.4;
+  }
+  .bar.active { opacity: 1; }
+  .bar:nth-child(2) { animation-delay: 0.15s; }
+  .bar:nth-child(3) { animation-delay: 0.3s; }
+  .bar:nth-child(4) { animation-delay: 0.1s; }
+  @keyframes bar-dance {
+    0%,100% { height: 4px; }
+    50%      { height: 18px; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width: 600px) {
+    .carta { padding: 48px 28px; }
+    .photo-frame-wrap { float: none; margin: 0 auto 28px; display: flex; justify-content: center; }
+    .carta-body p { text-indent: 1.5em; }
+    .bc-tl,.bc-tr,.bc-bl,.bc-br { width: 60px; height: 60px; }
+    .music-player { bottom: 16px; right: 14px; }
+    .music-bubble { padding: 10px 14px; gap: 10px; }
+  }
+
+  @media(prefers-reduced-motion: reduce) {
+    .petal, .bar { animation: none; }
+  }
+
+  /* ── CORAZÓN INTERACTIVO ── */
+  .corazon-section {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(139,105,20,0.2);
+    position: relative;
+    clear: both;
+    text-align: center;
+    overflow: hidden;
+    min-height: 320px;
+  }
+  .corazon-hint {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: rgba(140,58,74,0.55);
+    margin-bottom: 28px;
+    letter-spacing: 0.04em;
+  }
+  .corazon-arena {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .corazon-svg-wrap {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    user-select: none;
+    transition: filter 0.2s;
+  }
+  .corazon-svg-wrap:active { filter: brightness(1.15); }
+  .corazon-svg {
+    width: 140px; height: 140px;
+    animation: latido 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 0 18px rgba(196,104,122,0.5));
+    display: block;
+  }
+  @keyframes latido {
+    0%,100% { transform: scale(1);    filter: drop-shadow(0 0 14px rgba(196,104,122,0.45)); }
+    14%      { transform: scale(1.13); filter: drop-shadow(0 0 28px rgba(196,104,122,0.8)); }
+    28%      { transform: scale(1);    filter: drop-shadow(0 0 14px rgba(196,104,122,0.45)); }
+    42%      { transform: scale(1.07); filter: drop-shadow(0 0 22px rgba(196,104,122,0.65)); }
+    56%      { transform: scale(1);    filter: drop-shadow(0 0 14px rgba(196,104,122,0.45)); }
+  }
+  .palabra-flotante {
+    position: absolute;
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    animation: flotar-palabra 2.6s ease-out forwards;
+    z-index: 10;
+  }
+  @keyframes flotar-palabra {
+    0%   { opacity: 0;   transform: translateY(0)     scale(0.7); }
+    15%  { opacity: 1;   transform: translateY(-10px)  scale(1); }
+    75%  { opacity: 0.9; transform: translateY(-70px)  scale(1.05); }
+    100% { opacity: 0;   transform: translateY(-110px) scale(0.9); }
+  }
+</style>
+</head>
+<body>
+
+<!-- PARTÍCULAS -->
+<div id="particles"></div>
+
+<!-- PANTALLA DE BIENVENIDA -->
+<div id="welcome-screen">
+  <div class="wax-seal-container">
+    <div class="wax-seal">
+      <span class="seal-monogram">A</span>
+    </div>
+  </div>
+  <p class="welcome-title">Una carta para ti</p>
+  <p class="welcome-sub">Para los ojos de ella y nadie más</p>
+  <button class="open-btn" onclick="abrirCarta()">✦ Abrir la carta ✦</button>
+  <p class="click-hint">— Con amor, para mi princesa —</p>
+</div>
+
+<!-- CARTA -->
+<div id="carta-wrapper">
+  <div class="carta">
+
+    <!-- ESQUINAS ORNAMENTALES -->
+    <div class="border-corner bc-tl">
+      <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5,5 L35,5 M5,5 L5,35" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+        <path d="M12,5 L12,12 L5,12" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.5"/>
+        <circle cx="5" cy="5" r="3" fill="#C9A84C" opacity="0.7"/>
+        <path d="M18,5 Q30,18 35,35 Q18,30 5,18" stroke="#C9A84C" stroke-width="0.6" fill="none" opacity="0.4"/>
+        <path d="M5,40 Q8,55 22,68 Q14,50 5,40" stroke="#8B6914" stroke-width="0.8" fill="none" opacity="0.4"/>
+        <path d="M40,5 Q55,8 68,22" stroke="#8B6914" stroke-width="0.8" fill="none" opacity="0.4"/>
+        <!-- Flor estilizada -->
+        <g transform="translate(20,20)" opacity="0.75">
+          <circle cx="0" cy="0" r="3" fill="#C9A84C"/>
+          <ellipse cx="0" cy="-7" rx="2" ry="4" fill="#C9A84C" opacity="0.5"/>
+          <ellipse cx="7" cy="0" rx="4" ry="2" fill="#C9A84C" opacity="0.5" transform="rotate(90)"/>
+          <ellipse cx="0" cy="7" rx="2" ry="4" fill="#C9A84C" opacity="0.5"/>
+          <ellipse cx="-7" cy="0" rx="4" ry="2" fill="#C9A84C" opacity="0.5" transform="rotate(90)"/>
+          <ellipse cx="5" cy="-5" rx="2" ry="3.5" fill="#C9A84C" opacity="0.35" transform="rotate(45)"/>
+          <ellipse cx="5" cy="5" rx="2" ry="3.5" fill="#C9A84C" opacity="0.35" transform="rotate(-45)"/>
+          <ellipse cx="-5" cy="5" rx="2" ry="3.5" fill="#C9A84C" opacity="0.35" transform="rotate(45)"/>
+          <ellipse cx="-5" cy="-5" rx="2" ry="3.5" fill="#C9A84C" opacity="0.35" transform="rotate(-45)"/>
+        </g>
+        <!-- Espiral -->
+        <path d="M55,55 Q62,48 58,42 Q54,36 48,40 Q42,44 46,52 Q50,58 57,55" stroke="#C9A84C" stroke-width="0.8" fill="none" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="border-corner bc-tr"></div>
+    <div class="border-corner bc-bl"></div>
+    <div class="border-corner bc-br"></div>
+
+    <!-- LÍNEAS DE BORDE HORIZONTAL/VERTICAL decorativas -->
+    <div class="border-h top" style="height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5),transparent);"></div>
+    <div class="border-h bottom" style="height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5),transparent);"></div>
+    <div class="border-v left" style="width:2px;background:linear-gradient(180deg,transparent,rgba(201,168,76,0.5),transparent);"></div>
+    <div class="border-v right" style="width:2px;background:linear-gradient(180deg,transparent,rgba(201,168,76,0.5),transparent);"></div>
+
+    <!-- CABECERA -->
+    <div class="carta-header">
+      <div class="header-ornament">❧ ✦ ❧</div>
+      <div class="header-title">Para Ángela</div>
+      <div class="header-subtitle">Mi princesa, mi vida, mi todo</div>
+    </div>
+
+    <!-- FOTO -->
+    <div class="photo-frame-wrap">
+      <div class="photo-frame" title="Haz clic para ver más grande">
+        <div class="photo-tape"></div>
+        <div class="photo-frame-inner">
+          <img src="LoV3.jpg" alt="Mi amor" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="photo-placeholder" style="display:none;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>LoV3.jpg</span>
+          </div>
+        </div>
+        <div class="photo-caption">Mi corazón ♡</div>
+      </div>
+    </div>
+
+    <!-- CUERPO DE LA CARTA -->
+    <div class="carta-body">
+
+      <p>Angy mía, no sé si existan palabras suficientes en este idioma ni en ningún otro para decirte lo que siento cada vez que pienso en ti, que es siempre, a toda hora, en cada segundo que respiro. Pero aquí estoy, con esta carta entre las manos y el corazón desbordándose, intentando hacer lo imposible: ponerte en palabras.</p>
+
+      <p>Hay cosas que simplemente se saben sin que nadie te las enseñe. Yo supe que eras tú desde antes de entenderlo. Lo supe en la forma en que el mundo se volvió diferente a tu lado, en cómo de repente todo tenía más sentido y más color y más razón de ser. Tú eres esa razón, Angy. Eres la respuesta a preguntas que ni siquiera sabía que me estaba haciendo.</p>
+
+      <div class="divider">❦ ✦ ❦</div>
+
+      <p>Te amo de una manera que no cabe en un solo gesto ni en un solo día. Te amo en las mañanas cuando todo es silencioso y pienso en ti primero que en nada. Te amo en las noches cuando el mundo se apaga y tú sigues brillando en mi cabeza como la cosa más luminosa que he conocido. Te amo cuando me haces reír y cuando estás seria y cuando me miras y yo siento que alguien por fin me ve de verdad, como soy, sin filtros ni máscaras, solo yo.</p>
+
+      <p>Y eso, mi amor, es lo más extraordinario que me ha pasado en la vida: que tú me veas. Que seas la única persona ante quien mi alma no tiene que esconderse. Que contigo sea exactamente quien soy y que tú me quieras así de todas formas. No hay regalo más grande en este mundo que ese.</p>
+
+      <div class="divider">❧ ✦ ❧</div>
+
+      <p>Quiero que sepas que no existe en todo este universo ni en los que pudieran existir más allá, otra alma que reciba mi amor como tú lo recibes. No existe otra voz que llegue a mí como la tuya. No existe otra mirada que me calme y me encienda al mismo tiempo. Solo tú, Ángela. Solo siempre tú.</p>
+
+      <p>Soy tuyo. No de una manera torpe ni pasajera ni condicionada. Soy tuyo de la manera en que el río pertenece a su cauce y las estrellas a la noche: completamente, naturalmente, sin posibilidad de ser de otra forma. Puedo prometerte que mi amor no va a cambiar, porque no es algo que yo decida cada mañana. Simplemente es. Simplemente eres.</p>
+
+      <div class="divider">❦ ✦ ❦</div>
+
+      <p>Mi princesita hermosa, mi niña que tanto quiero, mi noviecita linda, mi futuro entero: esta carta es mía pero es tuya también, porque todo lo que hay en mí ya es tuyo desde hace tiempo. Guárdala si quieres, o léela cuando necesites saber sin ninguna duda que alguien en este mundo te ama con todo lo que tiene y con todo lo que es.</p>
+
+      <p class="no-indent" style="text-indent:0;">Ese alguien siempre seré yo.</p>
+
+    </div>
+
+    <!-- FIRMA -->
+    <div class="firma">
+      <div class="firma-name">Fernando</div>
+      <div class="firma-sub">el tuyo, para siempre</div>
+    </div>
+
+    <!-- SELLO INFERIOR -->
+    <div style="display:flex;justify-content:center;">
+      <div class="seal-bottom" title="Con amor sellado">
+        <span class="seal-bottom-text">♡</span>
+      </div>
+    </div>
+
+    <!-- ── CORAZÓN INTERACTIVO ── -->
+    <div class="corazon-section">
+      <div class="divider" style="margin-bottom:20px;">✦ ✦ ✦</div>
+      <p class="corazon-hint">— tócame —</p>
+      <div class="corazon-arena" id="corazonArena">
+        <div class="corazon-svg-wrap" id="corazonBtn" title="Tócame">
+          <svg class="corazon-svg" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="hg" cx="50%" cy="35%" r="65%">
+                <stop offset="0%"   stop-color="#F4A7B5"/>
+                <stop offset="55%"  stop-color="#C4687A"/>
+                <stop offset="100%" stop-color="#8C3A4A"/>
+              </radialGradient>
+              <radialGradient id="hghi" cx="35%" cy="28%" r="35%">
+                <stop offset="0%"   stop-color="rgba(255,255,255,0.55)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+              </radialGradient>
+            </defs>
+            <path d="M50,82 C50,82 8,54 8,28 C8,14 18,6 30,6 C38,6 46,11 50,18 C54,11 62,6 70,6 C82,6 92,14 92,28 C92,54 50,82 50,82 Z" fill="url(#hg)"/>
+            <path d="M50,82 C50,82 8,54 8,28 C8,14 18,6 30,6 C38,6 46,11 50,18 C54,11 62,6 70,6 C82,6 92,14 92,28 C92,54 50,82 50,82 Z" fill="url(#hghi)"/>
+            <!-- Brillo interior ornamental -->
+            <path d="M28,22 Q34,16 42,20" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MUSIC PLAYER -->
+<div class="music-player" id="musicPlayer" style="display:none;">
+  <div class="music-bubble" onclick="toggleMusic()">
+    <button class="music-btn" id="playBtn">▶</button>
+    <div class="music-info">
+      <div class="music-title">Beloved</div>
+      <div class="music-artist">Para ti, amor mío</div>
+    </div>
+    <div class="music-bars">
+      <div class="bar" id="b1" style="height:4px;"></div>
+      <div class="bar" id="b2" style="height:4px;"></div>
+      <div class="bar" id="b3" style="height:4px;"></div>
+      <div class="bar" id="b4" style="height:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="Beloved.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  /* ── PARTÍCULAS ── */
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      width: ${4 + Math.random()*5}px;
+      height: ${4 + Math.random()*5}px;
+      animation-duration: ${8 + Math.random()*14}s;
+      animation-delay: ${Math.random()*12}s;
+      opacity: ${0.2 + Math.random()*0.5};
+      background: ${Math.random() > 0.5 ? 'rgba(201,168,76,0.6)' : 'rgba(140,58,74,0.4)'};
+      border-radius: ${Math.random() > 0.5 ? '50% 0 50% 0' : '50%'};
+    `;
+    container.appendChild(p);
+  }
+
+  /* ── ABRIR CARTA ── */
+  function abrirCarta() {
+    document.getElementById('welcome-screen').classList.add('hidden');
+    document.getElementById('carta-wrapper').classList.add('visible');
+    document.getElementById('musicPlayer').style.display = 'flex';
+
+    const music = document.getElementById('bgMusic');
+    music.volume = 0.45;
+    music.play().then(() => {
+      setPlayState(true);
+    }).catch(() => {
+      setPlayState(false);
+    });
+  }
+
+  /* ── MÚSICA ── */
+  let playing = false;
+  function toggleMusic() {
+    const music = document.getElementById('bgMusic');
+    if (playing) {
+      music.pause();
+      setPlayState(false);
+    } else {
+      music.play();
+      setPlayState(true);
+    }
+  }
+
+  function setPlayState(state) {
+    playing = state;
+    document.getElementById('playBtn').textContent = state ? '⏸' : '▶';
+    ['b1','b2','b3','b4'].forEach(id => {
+      document.getElementById(id).classList.toggle('active', state);
+    });
+  }
+
+  /* ── HOVER SELLO INFERIOR ── */
+  document.querySelector('.seal-bottom').addEventListener('click', function() {
+    this.style.transition = 'transform 0.1s';
+    this.style.transform = 'scale(0.92) rotate(-5deg)';
+    setTimeout(() => { this.style.transform = ''; }, 200);
+  });
+
+  /* ── FOTO FULLSCREEN click ── */
+  document.querySelector('.photo-frame').addEventListener('click', function() {
+    const img = this.querySelector('img');
+    if (!img || img.style.display === 'none') return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:center;justify-content:center;cursor:pointer;`;
+    const big = document.createElement('img');
+    big.src = img.src;
+    big.style.cssText = `max-width:90vw;max-height:90vh;border:3px solid #C9A84C;box-shadow:0 0 60px rgba(201,168,76,0.4);`;
+    overlay.appendChild(big);
+    overlay.addEventListener('click', () => overlay.remove());
+    document.body.appendChild(overlay);
+  });
+
+  /* ── CORAZÓN PALPITANTE ── */
+  const palabras = [
+    { txt: "te amo",        color: "#C4687A", size: "1.5rem" },
+    { txt: "mi amor",       color: "#C9A84C", size: "1.1rem" },
+    { txt: "eres mía",      color: "#C4687A", size: "1.3rem" },
+    { txt: "para siempre",  color: "#8B6914", size: "1.0rem" },
+    { txt: "mi princesa",   color: "#C4687A", size: "1.2rem" },
+    { txt: "te adoro",      color: "#C9A84C", size: "1.1rem" },
+    { txt: "mi todo",       color: "#8C3A4A", size: "1.35rem"},
+    { txt: "mi vida",       color: "#C4687A", size: "1.15rem"},
+    { txt: "eres tú",       color: "#C9A84C", size: "1.25rem"},
+    { txt: "mi luz",        color: "#E8D08A", size: "1.1rem" },
+    { txt: "tuyo soy",      color: "#C4687A", size: "1.2rem" },
+    { txt: "mi niña linda", color: "#8C3A4A", size: "1.0rem" },
+    { txt: "siempre",       color: "#C9A84C", size: "1.4rem" },
+    { txt: "infinito",      color: "#C4687A", size: "1.1rem" },
+  ];
+
+  let pIdx = 0;
+  const arena = document.getElementById('corazonArena');
+  const btn   = document.getElementById('corazonBtn');
+
+  btn.addEventListener('click', explotar);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); explotar(); }, { passive: false });
+
+  function explotar() {
+    lanzarPalabra();
+    lanzarCorazones();
+    pulsarCorazon();
+  }
+
+  function lanzarPalabra() {
+    const p = palabras[pIdx % palabras.length];
+    pIdx++;
+    const el = document.createElement('div');
+    el.className = 'palabra-flotante';
+    el.textContent = p.txt;
+    el.style.color      = p.color;
+    el.style.fontSize   = p.size;
+    el.style.fontWeight = pIdx % 3 === 0 ? '500' : '400';
+    el.style.textShadow = `0 0 12px ${p.color}88`;
+    const cx = arena.offsetWidth / 2 + (Math.random() * 80 - 40);
+    const cy = arena.offsetHeight / 2 - 10;
+    el.style.left = cx + 'px';
+    el.style.top  = cy + 'px';
+    el.style.transform = 'translateX(-50%)';
+    arena.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  function lanzarCorazones() {
+    const colores = ['#C4687A','#E8A0AD','#C9A84C','#E8D08A','#8C3A4A','#F4C2CC'];
+    const emojis  = ['♥','♡','❤','💕','✦','✿','❧'];
+    const cx = arena.getBoundingClientRect().left + arena.offsetWidth  / 2;
+    const cy = arena.getBoundingClientRect().top  + arena.offsetHeight / 2;
+    const n = 10 + Math.floor(Math.random() * 6);
+
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div');
+      const angle  = (Math.random() * 360) * Math.PI / 180;
+      const speed  = 80 + Math.random() * 120;
+      const vx     = Math.cos(angle) * speed;
+      const vy     = Math.sin(angle) * speed - 60;
+      const sym    = emojis[Math.floor(Math.random() * emojis.length)];
+      const color  = colores[Math.floor(Math.random() * colores.length)];
+      const size   = 0.9 + Math.random() * 1.4;
+      const dur    = 900 + Math.random() * 700;
+
+      el.textContent = sym;
+      el.style.cssText = `
+        position: fixed;
+        left: ${cx}px;
+        top: ${cy}px;
+        font-size: ${size}rem;
+        color: ${color};
+        pointer-events: none;
+        z-index: 9999;
+        user-select: none;
+        text-shadow: 0 0 8px ${color}99;
+        font-family: serif;
+        transform: translate(-50%, -50%);
+        transition: left ${dur}ms cubic-bezier(.2,.8,.4,1),
+                    top  ${dur}ms cubic-bezier(.2,.8,.4,1),
+                    opacity ${dur}ms ease-in;
+      `;
+      document.body.appendChild(el);
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        el.style.left    = (cx + vx) + 'px';
+        el.style.top     = (cy + vy + 60) + 'px';
+        el.style.opacity = '0';
+      }));
+
+      setTimeout(() => el.remove(), dur + 50);
+    }
+  }
+
+  function pulsarCorazon() {
+    const svg = btn.querySelector('.corazon-svg');
+    svg.style.animation = 'none';
+    svg.style.transform = 'scale(1.25)';
+    svg.style.filter    = 'drop-shadow(0 0 35px rgba(196,104,122,1))';
+    svg.style.transition = 'transform 0.15s ease, filter 0.15s ease';
+    setTimeout(() => {
+      svg.style.transform = '';
+      svg.style.filter    = '';
+      svg.style.transition = '';
+      setTimeout(() => { svg.style.animation = ''; }, 80);
+    }, 180);
+  }
+</script>
+</body>
+</html>
